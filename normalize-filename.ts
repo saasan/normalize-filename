@@ -98,6 +98,7 @@ export function main(args: string[]): void {
             if (stat.isDirectory) {
                 console.log(`処理対象フォルダ: ${absolutePath}`);
                 recursive(absolutePath, nf);
+                rename(dirname(absolutePath), basename(absolutePath), nf);
             }
             else if (stat.isFile) {
                 console.log(`処理対象ファイル: ${absolutePath}`);

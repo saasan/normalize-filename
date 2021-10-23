@@ -28,15 +28,19 @@ Deno.test("main", () => {
     const file = Deno.createSync(filePath);
     file.close();
 
-    // 正規化前のファイルが存在することを確認
-    assert(existsSync(filePath));
+    try {
+        // 正規化前のファイルが存在することを確認
+        assert(existsSync(filePath));
 
-    // 正規化
-    main([tempDir]);
+        // 指定したディレクトリ自体も変換されることを確認するため
+        // テンポラリディレクトリのひとつ下のディレクトリに対して正規化を実行
+        main([join(tempDir, dirs[0])]);
 
-    // 正規化後のファイルが存在することを確認
-    assert(existsSync(normalizedFilePath));
-
-    // 作成したテンポラリディレクトリを削除
-    Deno.removeSync(tempDir, { recursive: true });
+        // 正規化後のファイルが存在することを確認
+        assert(existsSync(normalizedFilePath));
+    }
+    finally {
+        // 作成したテンポラリディレクトリを削除
+        Deno.removeSync(tempDir, { recursive: true });
+    }
 });
