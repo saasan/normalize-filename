@@ -1,0 +1,14 @@
+{
+    "name": "normalize-filename",
+    "dockerComposeFile": [
+        "docker-compose.yml"
+    ],
+    "service": "app",
+    "workspaceFolder": "/app",
+    "extensions": [
+        "denoland.vscode-deno",
+        "editorconfig.editorconfig",
+        "sohamkamani.code-eol"
+    ],
+    "postCreateCommand": "apt update && apt install -y git"
+}

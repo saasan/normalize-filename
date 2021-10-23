@@ -1,0 +1,58 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+        {
+            "type": "deno",
+            "command": "compile",
+            "args": [
+                "--allow-read",
+                "--allow-write",
+                "--output",
+                "build/normalize-filename",
+                "--target",
+                "x86_64-pc-windows-msvc",
+                "--unstable",
+                "normalize-filename.ts"
+            ],
+            "problemMatcher": [
+                "$deno"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "label": "deno: compile (Windows)"
+        },
+        {
+            "type": "deno",
+            "command": "compile",
+            "args": [
+                "--allow-read",
+                "--allow-write",
+                "--output",
+                "build/normalize-filename",
+                "--unstable",
+                "normalize-filename.ts"
+            ],
+            "problemMatcher": [
+                "$deno"
+            ],
+            "group": "build",
+            "label": "deno: compile (Linux)"
+        },
+        {
+            "type": "deno",
+            "command": "test",
+            "args": [
+                "--allow-read",
+                "--allow-write",
+                "--unstable"
+            ],
+            "problemMatcher": [
+                "$deno-test"
+            ],
+            "group": "test",
+            "label": "deno: test"
+        }
+    ]
+}
