@@ -1,12 +1,11 @@
 import { existsSync } from "https://deno.land/std@0.112.0/fs/mod.ts";
 import { join } from "https://deno.land/std@0.112.0/path/mod.ts";
 import { assert, assertEquals } from "https://deno.land/std@0.112.0/testing/asserts.ts";
-import { main, generateNormalizeFilename } from "../normalize-filename.ts";
+import { main, normalizeFilename } from "../normalize-filename.ts";
 
 Deno.test("normalize filename", () => {
-    const nf = generateNormalizeFilename();
     const str = "０𩸽１𠮷２🌐３🌕４栁５髙６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ　＃＄％＆’（）＋，－．；＝＠［］＾＿｀｛｝♯〜·‐‑";
-    const normalized = nf(str);
+    const normalized = normalizeFilename(str);
     assertEquals(normalized, "0𩸽1𠮷2🌐3🌕4栁5髙6789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz #$%&'()+,-.;=@[]^_`{}#～・--");
 });
 

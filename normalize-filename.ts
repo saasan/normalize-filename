@@ -10,7 +10,7 @@ import {
 // ファイル名を正規化する関数を生成する
 //------------------------------------------------------------------------------
 type NormalizeFilename = (str: string) => string;
-export function generateNormalizeFilename(): NormalizeFilename {
+function generateNormalizeFilename(): NormalizeFilename {
     // 変換する文字
     // 変換したくないものはこのリストから取り除く
     // \/:*?"<>|はWindosのファイル名に使えない
@@ -40,12 +40,13 @@ export function generateNormalizeFilename(): NormalizeFilename {
         return normalized;
     });
 }
+export const normalizeFilename = generateNormalizeFilename();
 
 //------------------------------------------------------------------------------
 // ファイル/フォルダ名を変更する
 //------------------------------------------------------------------------------
-function rename(path: string, name: string, nf: NormalizeFilename): void {
-    const newName = nf(name);
+function rename(path: string, name: string): void {
+    const newName = normalizeFilename(name);
     const oldPath = join(path, name);
     const newPath = join(path, newName);
 
@@ -63,19 +64,19 @@ function rename(path: string, name: string, nf: NormalizeFilename): void {
 //------------------------------------------------------------------------------
 // フォルダ内を再帰する
 //------------------------------------------------------------------------------
-function recursive(path: string, nf: NormalizeFilename): void {
+function recursive(path: string): void {
     const dirEntries = Array.from(Deno.readDirSync(path));
     const dirs = dirEntries.filter(dirEntry => dirEntry.isDirectory);
     const files = dirEntries.filter(dirEntry => dirEntry.isFile);
 
     dirs.forEach((dir: Deno.DirEntry) => {
         const next = join(path, dir.name);
-        recursive(next, nf);
-        rename(path, dir.name, nf);
+        recursive(next);
+        rename(path, dir.name);
     });
 
     files.forEach((file: Deno.DirEntry) => {
-        rename(path, file.name, nf);
+        rename(path, file.name);
     });
 }
 
@@ -88,8 +89,6 @@ export function main(args: string[]): void {
         Deno.exit(1);
     }
 
-    const nf = generateNormalizeFilename();
-
     args.forEach(arg => {
         if (existsSync(arg)) {
             const absolutePath = resolve(arg);
@@ -97,12 +96,12 @@ export function main(args: string[]): void {
 
             if (stat.isDirectory) {
                 console.log(`処理対象フォルダ: ${absolutePath}`);
-                recursive(absolutePath, nf);
-                rename(dirname(absolutePath), basename(absolutePath), nf);
+                recursive(absolutePath);
+                rename(dirname(absolutePath), basename(absolutePath));
             }
             else if (stat.isFile) {
                 console.log(`処理対象ファイル: ${absolutePath}`);
-                rename(dirname(absolutePath), basename(absolutePath), nf);
+                rename(dirname(absolutePath), basename(absolutePath));
             }
         }
         else {
