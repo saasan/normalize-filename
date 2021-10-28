@@ -9,7 +9,7 @@ Deno.test("normalize filename", () => {
     assertEquals(normalized, "0𩸽1𠮷2🌐3🌕4栁5髙6789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz #$%&'()+,-.;=@[]^_`{}#～・--");
 });
 
-Deno.test("main", () => {
+Deno.test("main", async () => {
     const dirs = [..."０𩸽１𠮷２🌐３🌕４"];
     const filename = "５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ　＃＄％＆’（）＋，－．；＝＠［］＾＿｀｛｝♯〜·‐‑.txt";
     const normalizedDirs = [..."0𩸽1𠮷2🌐3🌕4"];
@@ -33,7 +33,7 @@ Deno.test("main", () => {
 
         // 指定したディレクトリ自体も変換されることを確認するため
         // テンポラリディレクトリのひとつ下のディレクトリに対して正規化を実行
-        main([join(tempDir, dirs[0])]);
+        await main([join(tempDir, dirs[0])]);
 
         // 正規化後のファイルが存在することを確認
         assert(existsSync(normalizedFilePath));

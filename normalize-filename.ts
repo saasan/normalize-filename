@@ -1,4 +1,4 @@
-import { existsSync } from "https://deno.land/std@0.112.0/fs/mod.ts";
+import { exists } from "https://deno.land/std@0.112.0/fs/mod.ts";
 import {
     basename,
     dirname,
@@ -45,69 +45,65 @@ export const normalizeFilename = generateNormalizeFilename();
 //------------------------------------------------------------------------------
 // ファイル/フォルダ名を変更する
 //------------------------------------------------------------------------------
-function rename(path: string, name: string): void {
+async function rename(path: string, name: string) {
     const newName = normalizeFilename(name);
     const oldPath = join(path, name);
     const newPath = join(path, newName);
 
     if (newName != name) {
-        if (existsSync(newPath)) {
+        if (await exists(newPath)) {
             console.log(`${newPath} は既に存在します。`);
             return;
         }
 
         console.log(`${oldPath} -> ${newName}`);
-        Deno.renameSync(oldPath, newPath);
+        await Deno.rename(oldPath, newPath);
     }
 }
 
 //------------------------------------------------------------------------------
 // フォルダ内を再帰する
 //------------------------------------------------------------------------------
-function recursive(path: string): void {
-    const dirEntries = Array.from(Deno.readDirSync(path));
-    const dirs = dirEntries.filter(dirEntry => dirEntry.isDirectory);
-    const files = dirEntries.filter(dirEntry => dirEntry.isFile);
+async function recursive(path: string) {
+    for await (const entry of Deno.readDir(path)) {
+        if (entry.isDirectory) {
+            await recursive(join(path, entry.name));
+        }
+        else if (entry.isFile) {
+            await rename(path, entry.name);
+        }
+    }
 
-    dirs.forEach((dir: Deno.DirEntry) => {
-        const next = join(path, dir.name);
-        recursive(next);
-        rename(path, dir.name);
-    });
-
-    files.forEach((file: Deno.DirEntry) => {
-        rename(path, file.name);
-    });
+    await rename(dirname(path), basename(path));
 }
 
 //------------------------------------------------------------------------------
 // メイン
 //------------------------------------------------------------------------------
-export function main(args: string[]): void {
+export async function main(args: string[]) {
     if (args.length === 0) {
         console.error("処理対象のファイルまたはフォルダを指定してください。");
         Deno.exit(1);
     }
 
-    args.forEach(arg => {
-        if (existsSync(arg)) {
+    await Promise.all(args.map(async arg => {
+        if (await exists(arg)) {
             const absolutePath = resolve(arg);
-            const stat = Deno.lstatSync(absolutePath);
+            const stat = await Deno.lstat(absolutePath);
 
             if (stat.isDirectory) {
                 console.log(`処理対象フォルダ: ${absolutePath}`);
-                recursive(absolutePath);
-                rename(dirname(absolutePath), basename(absolutePath));
+                await recursive(absolutePath);
             }
             else if (stat.isFile) {
                 console.log(`処理対象ファイル: ${absolutePath}`);
-                rename(dirname(absolutePath), basename(absolutePath));
+                await rename(dirname(absolutePath), basename(absolutePath));
             }
         }
         else {
             console.log(`${arg} が見つかりません。`);
         }
-    });
+    }));
 
     console.log("完了");
 }
