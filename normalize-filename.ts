@@ -1,4 +1,4 @@
-import { exists } from "https://deno.land/std@0.112.0/fs/mod.ts";
+import { exists, WalkEntry, _createWalkEntry } from "https://deno.land/std@0.112.0/fs/mod.ts";
 import {
     basename,
     dirname,
@@ -45,10 +45,10 @@ export const normalizeFilename = generateNormalizeFilename();
 //------------------------------------------------------------------------------
 // ファイル/フォルダ名を変更する
 //------------------------------------------------------------------------------
-async function rename(path: string, name: string) {
+async function rename(path: string) {
+    const name = basename(path);
     const newName = normalizeFilename(name);
-    const oldPath = join(path, name);
-    const newPath = join(path, newName);
+    const newPath = join(dirname(path), newName);
 
     if (newName != name) {
         if (await exists(newPath)) {
@@ -56,25 +56,27 @@ async function rename(path: string, name: string) {
             return;
         }
 
-        console.log(`${oldPath} -> ${newName}`);
-        await Deno.rename(oldPath, newPath);
+        console.log(`${path} -> ${newName}`);
+        await Deno.rename(path, newPath);
     }
 }
 
 //------------------------------------------------------------------------------
-// フォルダ内を再帰する
+// フォルダ内のフォルダとファイルを深いディレクトリ優先で取得する
 //------------------------------------------------------------------------------
-async function recursive(path: string) {
-    for await (const entry of Deno.readDir(path)) {
+async function* reverseWalk(root: string): AsyncIterableIterator<WalkEntry> {
+    for await (const entry of Deno.readDir(root)) {
+        const path = join(root, entry.name);
+
         if (entry.isDirectory) {
-            await recursive(join(path, entry.name));
+            yield* reverseWalk(path);
         }
         else if (entry.isFile) {
-            await rename(path, entry.name);
+            yield { path, ...entry };
         }
     }
 
-    await rename(dirname(path), basename(path));
+    yield await _createWalkEntry(root);
 }
 
 //------------------------------------------------------------------------------
@@ -93,11 +95,13 @@ export async function main(args: string[]) {
 
             if (stat.isDirectory) {
                 console.log(`処理対象フォルダ: ${absolutePath}`);
-                await recursive(absolutePath);
+                for await (const entry of reverseWalk(absolutePath)) {
+                    await rename(entry.path);
+                }
             }
             else if (stat.isFile) {
                 console.log(`処理対象ファイル: ${absolutePath}`);
-                await rename(dirname(absolutePath), basename(absolutePath));
+                await rename(absolutePath);
             }
         }
         else {
