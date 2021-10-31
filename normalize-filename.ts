@@ -52,8 +52,7 @@ async function rename(path: string) {
 
     if (newName != name) {
         if (await exists(newPath)) {
-            console.log(`${newPath} は既に存在します。`);
-            return;
+            throw new Error(`${newPath} は既に存在します。`);
         }
 
         console.log(`${path} -> ${newName}`);
@@ -96,12 +95,12 @@ export async function main(args: string[]) {
             if (stat.isDirectory) {
                 console.log(`処理対象フォルダ: ${absolutePath}`);
                 for await (const entry of reverseWalk(absolutePath)) {
-                    await rename(entry.path);
+                    await rename(entry.path).catch(e => console.error(e));
                 }
             }
             else if (stat.isFile) {
                 console.log(`処理対象ファイル: ${absolutePath}`);
-                await rename(absolutePath);
+                await rename(absolutePath).catch(e => console.error(e));
             }
         }
         else {
