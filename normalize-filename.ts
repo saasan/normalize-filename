@@ -55,7 +55,7 @@ async function rename(path: string) {
             throw new Error(`${newPath} は既に存在します。`);
         }
 
-        console.log(`${path} -> ${newName}`);
+        console.log(`${path}\n-> ${newName}`);
         await Deno.rename(path, newPath);
     }
 }
