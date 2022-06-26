@@ -6,6 +6,7 @@ import {
     normalize,
     resolve
 } from "https://deno.land/std@0.145.0/path/mod.ts";
+import InputLoop from 'https://deno.land/x/input@2.0.3/index.ts';
 
 //------------------------------------------------------------------------------
 // ファイル名を正規化する関数を生成する
@@ -123,6 +124,11 @@ export async function main(args: string[]) {
     }));
 
     console.log("完了");
+
+    if (Deno.build.os === 'windows') {
+        const input = new InputLoop();
+        await input.wait();
+    }
 }
 
 if (import.meta.main) {
