@@ -1,10 +1,11 @@
-import { exists, WalkEntry, _createWalkEntry } from "https://deno.land/std@0.112.0/fs/mod.ts";
+import { move, WalkEntry } from "https://deno.land/std@0.145.0/fs/mod.ts";
 import {
     basename,
     dirname,
     join,
+    normalize,
     resolve
-} from "https://deno.land/std@0.112.0/path/mod.ts";
+} from "https://deno.land/std@0.145.0/path/mod.ts";
 
 //------------------------------------------------------------------------------
 // ファイル名を正規化する関数を生成する
@@ -51,13 +52,31 @@ async function rename(path: string) {
     const newPath = join(dirname(path), newName);
 
     if (newName != name) {
-        if (await exists(newPath)) {
-            throw new Error(`${newPath} は既に存在します。`);
-        }
-
         console.log(`${path}\n-> ${newName}`);
-        await Deno.rename(path, newPath);
+        try {
+            await move(path, newPath);
+        }
+        catch (e) {
+            throw new Error(`ファイル名の変更に失敗しました。: ${e.message}`);
+        }
     }
+}
+
+//------------------------------------------------------------------------------
+// Create WalkEntry for the `path` asynchronously
+// https://deno.land/std@0.145.0/fs/_util.ts?codeview=#L61
+//------------------------------------------------------------------------------
+async function createWalkEntry(path: string): Promise<WalkEntry> {
+    path = normalize(path);
+    const name = basename(path);
+    const info = await Deno.stat(path);
+    return {
+        path,
+        name,
+        isFile: info.isFile,
+        isDirectory: info.isDirectory,
+        isSymlink: info.isSymlink,
+    };
 }
 
 //------------------------------------------------------------------------------
@@ -75,7 +94,7 @@ async function* reverseWalk(root: string): AsyncIterableIterator<WalkEntry> {
         }
     }
 
-    yield await _createWalkEntry(root);
+    yield await createWalkEntry(root);
 }
 
 //------------------------------------------------------------------------------
@@ -88,23 +107,18 @@ export async function main(args: string[]) {
     }
 
     await Promise.all(args.map(async arg => {
-        if (await exists(arg)) {
-            const absolutePath = resolve(arg);
-            const stat = await Deno.lstat(absolutePath);
+        const absolutePath = resolve(arg);
+        const stat = await Deno.lstat(absolutePath);
 
-            if (stat.isDirectory) {
-                console.log(`処理対象フォルダ: ${absolutePath}`);
-                for await (const entry of reverseWalk(absolutePath)) {
-                    await rename(entry.path).catch(e => console.error(e));
-                }
-            }
-            else if (stat.isFile) {
-                console.log(`処理対象ファイル: ${absolutePath}`);
-                await rename(absolutePath).catch(e => console.error(e));
+        if (stat.isDirectory) {
+            console.log(`処理対象フォルダ: ${absolutePath}`);
+            for await (const entry of reverseWalk(absolutePath)) {
+                await rename(entry.path).catch(e => console.error(e));
             }
         }
-        else {
-            console.log(`${arg} が見つかりません。`);
+        else if (stat.isFile) {
+            console.log(`処理対象ファイル: ${absolutePath}`);
+            await rename(absolutePath).catch(e => console.error(e));
         }
     }));
 
