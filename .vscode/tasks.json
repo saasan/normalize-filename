@@ -12,7 +12,7 @@
                 "--target",
                 "x86_64-pc-windows-msvc",
                 "--unstable",
-                "normalize-filename.ts"
+                "main.ts"
             ],
             "problemMatcher": [
                 "$deno"
@@ -32,7 +32,7 @@
                 "--output",
                 "build/normalize-filename",
                 "--unstable",
-                "normalize-filename.ts"
+                "main.ts"
             ],
             "problemMatcher": [
                 "$deno"

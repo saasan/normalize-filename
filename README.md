@@ -21,11 +21,11 @@
 
 ## 実行
 
-    deno run --unstable --allow-read --allow-write normalize-filename.ts 対象ファイル/フォルダ
+    deno run --unstable --allow-read --allow-write main.ts 対象ファイル/フォルダ
 
 ## コンパイル (Windows 用)
 
-    deno compile --unstable --allow-read --allow-write --target x86_64-pc-windows-msvc normalize-filename.ts
+    deno compile --unstable --allow-read --allow-write --target x86_64-pc-windows-msvc main.ts
 
 Visual Studio Code ならデフォルトのビルドタスク
 (`Ctrl + Shift + B`) でコンパイル可能。
