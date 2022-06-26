@@ -11,6 +11,7 @@
                 "build/normalize-filename",
                 "--target",
                 "x86_64-pc-windows-msvc",
+                "--unstable",
                 "main.ts"
             ],
             "problemMatcher": [
@@ -30,6 +31,7 @@
                 "--allow-write",
                 "--output",
                 "build/normalize-filename",
+                "--unstable",
                 "main.ts"
             ],
             "problemMatcher": [
@@ -44,6 +46,7 @@
             "args": [
                 "--allow-read",
                 "--allow-write",
+                "--unstable"
             ],
             "problemMatcher": [
                 "$deno-test"
