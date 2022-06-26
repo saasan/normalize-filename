@@ -10,5 +10,5 @@
         "editorconfig.editorconfig",
         "sohamkamani.code-eol"
     ],
-    "postCreateCommand": "apt update && apt install -y git"
+    "postCreateCommand": "apt update && apt install -y git unzip"
 }
