@@ -5,3 +5,5 @@ services:
     command: /bin/sh -c "while sleep 1000; do :; done"
     volumes:
       - ..:/app
+    environment:
+      - LESSCHARSET=utf-8
