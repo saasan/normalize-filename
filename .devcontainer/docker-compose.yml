@@ -1,9 +1,0 @@
-version: '3.3'
-services:
-  app:
-    image: denoland/deno
-    command: /bin/sh -c "while sleep 1000; do :; done"
-    volumes:
-      - ..:/app
-    environment:
-      - LESSCHARSET=utf-8
