@@ -33,11 +33,10 @@ function generateNormalizeFilename(): NormalizeFilename {
         // サロゲートペア対策のためスプレッド構文で文字単位に分割
         const chars = [...str];
         // 正規化した文字列
-        let normalized = "";
-
-        for (let i = 0; i < chars.length; i++) {
-            normalized += MAP.has(chars[i]) ? MAP.get(chars[i]) : chars[i];
-        }
+        const normalized = chars.reduce(
+            (acc, val) =>  acc + (MAP.has(val) ? MAP.get(val) : val),
+            ""
+        );
 
         return normalized;
     });
