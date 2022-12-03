@@ -1,47 +1,28 @@
-import { move, WalkEntry } from "https://deno.land/std@0.145.0/fs/mod.ts";
+import { move, WalkEntry } from 'https://deno.land/std@0.145.0/fs/mod.ts';
 import {
     basename,
     dirname,
     join,
     normalize,
     resolve
-} from "https://deno.land/std@0.145.0/path/mod.ts";
+} from 'https://deno.land/std@0.145.0/path/mod.ts';
 import InputLoop from 'https://deno.land/x/input@2.0.3/index.ts';
+import replacementTable from './replacement-table.ts';
 
 //------------------------------------------------------------------------------
-// ファイル名を正規化する関数を生成する
+// ファイル名を正規化する
 //------------------------------------------------------------------------------
-type NormalizeFilename = (str: string) => string;
-function generateNormalizeFilename(): NormalizeFilename {
-    // 変換する文字
-    // 変換したくないものはこのリストから取り除く
-    // \/:*?"<>|はWindosのファイル名に使えない
-    // サロゲートペア対策のためスプレッド構文で文字単位に分割
-    const IN = [..."０１２３４５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ　＃＄％＆’（）＋，－．；＝＠［］＾＿｀｛｝♯〜·‐‑"];
-    const OUT = [..."0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz #$%&'()+,-.;=@[]^_`{}#～・--"];
-    const MAP = new Map<string, string>();
+export function normalizeFilename(str: string): string {
+    // 正規化した文字列
+    let normalized = str;
 
-    if (IN.length != OUT.length) {
-        throw new Error("変換する文字リストの長さが異なります。");
+    for (const [key, value] of replacementTable) {
+        const regexp = new RegExp(key, 'g')
+        normalized = normalized.replace(regexp, value)
     }
 
-    for (let i = 0; i < IN.length; i++) {
-        MAP.set(IN[i], OUT[i]);
-    }
-
-    return ((str: string): string => {
-        // サロゲートペア対策のためスプレッド構文で文字単位に分割
-        const chars = [...str];
-        // 正規化した文字列
-        const normalized = chars.reduce(
-            (acc, val) =>  acc + (MAP.has(val) ? MAP.get(val) : val),
-            ""
-        );
-
-        return normalized;
-    });
+    return normalized;
 }
-export const normalizeFilename = generateNormalizeFilename();
 
 //------------------------------------------------------------------------------
 // ファイル/フォルダ名を変更する
@@ -102,7 +83,7 @@ async function* reverseWalk(root: string): AsyncIterableIterator<WalkEntry> {
 //------------------------------------------------------------------------------
 export async function main(args: string[]) {
     if (args.length === 0) {
-        console.error("処理対象のファイルまたはフォルダを指定してください。");
+        console.error('処理対象のファイルまたはフォルダを指定してください。');
         Deno.exit(1);
     }
 
@@ -122,7 +103,7 @@ export async function main(args: string[]) {
         }
     }));
 
-    console.log("完了");
+    console.log('完了');
 
     if (Deno.build.os === 'windows') {
         const input = new InputLoop();

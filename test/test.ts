@@ -1,18 +1,24 @@
-import { exists } from "https://deno.land/std@0.145.0/fs/mod.ts";
-import { join } from "https://deno.land/std@0.145.0/path/mod.ts";
-import { assert, assertEquals } from "https://deno.land/std@0.145.0/testing/asserts.ts";
-import { main, normalizeFilename } from "../main.ts";
+import { exists } from 'https://deno.land/std@0.145.0/fs/mod.ts';
+import { join } from 'https://deno.land/std@0.145.0/path/mod.ts';
+import { assert, assertEquals } from 'https://deno.land/std@0.145.0/testing/asserts.ts';
+import { main, normalizeFilename } from '../main.ts';
 
-Deno.test("normalize filename", () => {
-    const str = "０𩸽１𠮷２🌐３🌕４栁５髙６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ　＃＄％＆’（）＋，－．；＝＠［］＾＿｀｛｝♯〜·‐‑";
+Deno.test('全角半角', () => {
+    const str = '０𩸽１𠮷２🌐３🌕４栁５髙６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ　＃＄％＆’（）＋，－．；＝＠［］＾＿｀｛｝♯〜·‐‑';
     const normalized = normalizeFilename(str);
     assertEquals(normalized, "0𩸽1𠮷2🌐3🌕4栁5髙6789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz #$%&'()+,-.;=@[]^_`{}#～・--");
 });
 
-Deno.test("main", async () => {
-    const dirs = [..."０𩸽１𠮷２🌐３🌕４"];
-    const filename = "５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ　＃＄％＆’（）＋，－．；＝＠［］＾＿｀｛｝♯〜·‐‑.txt";
-    const normalizedDirs = [..."0𩸽1𠮷2🌐3🌕4"];
+Deno.test('結合文字', () => {
+    const str = 'ゔがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽヴガギグゲゴザジズゼゾダヂヅデドバビブベボヷヸヹヺパピプペポ';
+    const normalized = normalizeFilename(str);
+    assertEquals(normalized, 'ゔがぎぐげござじずぜぞだぢづでどばびぶべぼぱぴぷぺぽヴガギグゲゴザジズゼゾダヂヅデドバビブベボヷヸヹヺパピプペポ');
+});
+
+Deno.test('main', async () => {
+    const dirs = [...'０𩸽１𠮷２🌐３🌕４'];
+    const filename = '５６７８９ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ　＃＄％＆’（）＋，－．；＝＠［］＾＿｀｛｝♯〜·‐‑.txt';
+    const normalizedDirs = [...'0𩸽1𠮷2🌐3🌕4'];
     const normalizedFilename = "56789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz #$%&'()+,-.;=@[]^_`{}#～・--.txt";
 
     // テンポラリディレクトリを作成
