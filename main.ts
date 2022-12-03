@@ -1,12 +1,11 @@
-import { move, WalkEntry } from 'https://deno.land/std@0.145.0/fs/mod.ts';
+import { move, WalkEntry } from 'https://deno.land/std@0.167.0/fs/mod.ts';
 import {
     basename,
     dirname,
     join,
     normalize,
     resolve
-} from 'https://deno.land/std@0.145.0/path/mod.ts';
-import InputLoop from 'https://deno.land/x/input@2.0.3/index.ts';
+} from 'https://deno.land/std@0.167.0/path/mod.ts';
 import replacementTable from './replacement-table.ts';
 
 //------------------------------------------------------------------------------
@@ -79,6 +78,16 @@ async function* reverseWalk(root: string): AsyncIterableIterator<WalkEntry> {
 }
 
 //------------------------------------------------------------------------------
+// キー入力を待つ
+//------------------------------------------------------------------------------
+async function waitKey() {
+    console.log('Press any key to continue...');
+    Deno.stdin.setRaw(true);
+    await Deno.stdin.read(new Uint8Array(1024));
+    Deno.stdin.setRaw(false);
+}
+
+//------------------------------------------------------------------------------
 // メイン
 //------------------------------------------------------------------------------
 export async function main(args: string[]) {
@@ -106,8 +115,7 @@ export async function main(args: string[]) {
     console.log('完了');
 
     if (Deno.build.os === 'windows') {
-        const input = new InputLoop();
-        await input.wait();
+        await waitKey();
     }
 }
 

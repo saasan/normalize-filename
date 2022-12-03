@@ -1,6 +1,6 @@
-import { exists } from 'https://deno.land/std@0.145.0/fs/mod.ts';
-import { join } from 'https://deno.land/std@0.145.0/path/mod.ts';
-import { assert, assertEquals } from 'https://deno.land/std@0.145.0/testing/asserts.ts';
+import { exists } from 'https://deno.land/std@0.167.0/fs/mod.ts';
+import { join } from 'https://deno.land/std@0.167.0/path/mod.ts';
+import { assert, assertEquals } from 'https://deno.land/std@0.167.0/testing/asserts.ts';
 import { main, normalizeFilename } from '../main.ts';
 
 Deno.test('全角半角', () => {
