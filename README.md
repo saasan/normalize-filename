@@ -18,20 +18,16 @@
 |· (半角中点, U+00B7)|・ (全角中点, U+30FB)|
 |‐ (Hyphen, U+2010)|- (Hyphen-Minus, U+002D)|
 |‑ (Non-Breaking Hyphen, U+2011)|- (Hyphen-Minus, U+002D)|
+|ひらがな/カタカナと結合文字  ゙ (濁点, U+3099) または  ゚ (半濁点, U+309A) の組み合わせ|合成済み文字|
 
 ## 実行
 
-    deno run --unstable --allow-read --allow-write main.ts 対象ファイル/フォルダ
+    deno run --allow-read --allow-write main.ts 対象ファイル/フォルダ
 
 ## コンパイル (Windows 用)
 
-    deno compile --unstable --allow-read --allow-write --target x86_64-pc-windows-msvc main.ts
+    deno compile --allow-read --allow-write --target x86_64-pc-windows-msvc main.ts
 
 Visual Studio Code ならデフォルトのビルドタスク
 (`Ctrl + Shift + B`) でコンパイル可能。
 この場合 build ディレクトリに出力される。
-
-## --unstable フラグ
-
-`--unstable` フラグは `InputLoop` で使用されている `Deno.setRaw` のために必要。
-`--unstable` フラグがない場合は `Enter` キー以外に反応しない。
