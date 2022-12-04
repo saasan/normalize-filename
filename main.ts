@@ -6,22 +6,48 @@ import {
     normalize,
     resolve
 } from 'https://deno.land/std@0.167.0/path/mod.ts';
-import replacementTable from './replacement-table.ts';
 
 //------------------------------------------------------------------------------
-// ファイル名を正規化する
+// ファイル名を正規化する関数を生成する
 //------------------------------------------------------------------------------
-export function normalizeFilename(str: string): string {
-    // 正規化した文字列
-    let normalized = str;
+type NormalizeFilename = (str: string) => string;
+function generateNormalizeFilename(): NormalizeFilename {
+    // 全角半角
+    // \/:*?"<>|はWindosのファイル名に使えない
+    const fullWidth = /[＃＄％＆＇（）＋，－．０-９；＝＠Ａ-Ｚ［］＾＿｀ａ-ｚ｛｝]/g;
+    // 全角と半角のcodePointの差
+    const diff = '０'.codePointAt(0)! - '0'.codePointAt(0)!;
+    // 結合文字
+    const combiningChar = /[うか-とは-ほゝウカ-トハ-ホワ-ヲヽ]\u{3099}|[は-ほハ-ホ]\u{309A}/gu;
+    // その他記号
+    const symbols = [
+        ["·", "・"],
+        ["‐", "-"],
+        ["‑", "-"],
+        ["’", "'"],
+        ["♯", "#"],
+        ["　", " "],
+        ["〜", "～"]
+    ];
 
-    for (const [key, value] of replacementTable) {
-        const regexp = new RegExp(key, 'g')
-        normalized = normalized.replace(regexp, value)
-    }
+    return ((str: string): string => {
+        // 正規化した文字列
+        let normalized = str;
 
-    return normalized;
+        // 全角半角
+        normalized = normalized.replace(fullWidth, match => String.fromCodePoint(match.codePointAt(0)! - diff));
+        // 結合文字
+        normalized = normalized.replace(combiningChar, match => match.normalize());
+        // その他記号
+        for (const [key, value] of symbols) {
+            const regexp = new RegExp(key, 'g')
+            normalized = normalized.replace(regexp, value)
+        }
+
+        return normalized;
+    });
 }
+export const normalizeFilename = generateNormalizeFilename();
 
 //------------------------------------------------------------------------------
 // ファイル/フォルダ名を変更する
